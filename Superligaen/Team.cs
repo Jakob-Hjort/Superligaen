@@ -33,7 +33,10 @@ namespace Superligaen
             TeamName = teamName;
 
         }
-
+        public int GoalDifference
+        {
+            get { return goalScored - goalAgainst; }
+        }
 
     }
 }

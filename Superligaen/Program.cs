@@ -1,11 +1,11 @@
 ﻿using NLog;
 using Superligaen;
 using System;
-using System.Net.NetworkInformation;
 
 public class Program
 {
     private static Logger logger = LogManager.GetCurrentClassLogger();
+
     public static void Main()
     {
         // Opret holdene
@@ -37,7 +37,6 @@ public class Program
         scoreboard.AddTeam(team11);
         scoreboard.AddTeam(team12);
 
-
         // Opret en array af holdene
         Team[] teams = { team1, team2, team3, team4, team5, team6, team7, team8, team9, team10, team11, team12 };
 
@@ -47,7 +46,6 @@ public class Program
         // Arranger kampe, hvor hvert hold spiller to kampe mod hinanden
         for (int i = 0; i < teams.Length; i++)
         {
-            //           for (int j = i + 1; j < teams.Length; j++)
             for (int j = 0; j < teams.Length; j++)
             {
                 if (i != j)
@@ -60,20 +58,28 @@ public class Program
 
                     Game game1 = new Game(teams[i], teams[j], homeGoals, awayGoals);
                 }
-                /*
-                //Spil retur kamp
-                homeGoals = randomscore.Next(0,5);
-                awayGoals = randomscore.Next(0,5);
-                Game game2 = new Game(teams[j], teams[i], homeGoals, awayGoals);
-                Console.WriteLine($"{teams[j].TeamName} Mod {teams[i].TeamName}");
-                */
             }
+
         }
 
-        // Vis liga tabellen
-        scoreboard.DisplayTable();
+        // Vis liga tabellen efter gruppespillet
+        Console.WriteLine("\nInitial Group Stage Results:");
+        List<Team> teamList = new List<Team>(teams);
+        scoreboard.DisplayTable(teamList);
 
+        // Spil slutspil og nedrykningsrunder
+        scoreboard.PlayChampionshipRound(randomscore);
+        scoreboard.PlayRelegationRound(randomscore);
 
+        // Vis vinderen af slutspillet
+        var champion = "Vinderen af slutspillet: " + scoreboard.Teams.OrderByDescending(t => t.Points).ThenByDescending(t => t.GoalDifference).First().TeamName;
+        Console.WriteLine(champion);
 
+        // Vis de hold, der rykker ned
+        //var relegatedTeams = scoreboard.Teams.OrderByDescending(t => t.Points).ThenBy(t => t.GoalDifference).Take(2);
+        var relegatedTeams = scoreboard.Teams.OrderByDescending(t => t.Points).ThenBy(t => t.GoalDifference).TakeLast(2).ToList();
+
+        var relegated = "Holdene der rykker ned: " + string.Join(", ", relegatedTeams.Select(team => team.TeamName));
+        Console.WriteLine(relegated);
     }
 }
